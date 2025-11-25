@@ -48,7 +48,7 @@ public class AutorController {
         try {
             AutoresDTO autor = autorService.findById(idAutor);
             model.addAttribute("autor", autor);
-            return "autor-detalle";
+            return "autor/autor-detalle";
         } catch (RuntimeException e) {
             // Si el autor no existe, Spring Boot manejará automáticamente el 404
             model.addAttribute("error", "Autor no encontrado con ID: " + idAutor);
@@ -75,6 +75,8 @@ public class AutorController {
                 model.addAttribute("autor", autorDTO);
                 return "autor/autores-edit";
             }
+            // Asegurar que el ID está seteado
+            autorDTO.setId(id);
             autorService.updateAutor(id, autorDTO);
             model.addAttribute("mensaje", "Autor actualizado correctamente");
             return "redirect:/autor";

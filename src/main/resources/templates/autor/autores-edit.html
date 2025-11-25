@@ -43,8 +43,9 @@
                 <div class="card-body">
                     <form th:action="@{/autor/update/{id}(id=${autor.id})}" th:object="${autor}" method="post" id="editarAutorForm">
                         
-                        <!-- Campo ID oculto (NECESARIO) -->
+                        <!-- Campos ocultos (NECESARIOS) -->
                         <input type="hidden" th:field="*{id}">
+                        <input type="hidden" th:field="*{estado}">
                         
                         <div class="row g-4">
                             <!-- Campo Nombre -->
@@ -130,7 +131,7 @@
                                 <i class="bi bi-x-circle me-2"></i>
                                 Cancelar
                             </a>
-                            <button type="submit" class="btn btn-warning btn-lg">
+                            <button type="submit" class="btn btn-warning btn-lg" id="submitBtn">
                                 <i class="bi bi-check-circle me-2"></i>
                                 Actualizar Autor
                             </button>
@@ -256,13 +257,28 @@
             const form = document.getElementById('editarAutorForm');
             const nombreInput = document.getElementById('nombre');
             const correoInput = document.getElementById('correo');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Función para validar formulario completo
+            function validateForm() {
+                const nombreValid = nombreInput.value.trim().length > 0;
+                const correoValid = correoInput.value.trim().length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoInput.value);
+                
+                submitBtn.disabled = !(nombreValid && correoValid);
+                
+                return nombreValid && correoValid;
+            }
             
             // Validación en tiempo real
             [nombreInput, correoInput].forEach(input => {
                 input.addEventListener('input', function() {
                     validateField(this);
+                    validateForm();
                 });
             });
+            
+            // Validar al cargar la página
+            validateForm();
             
             function validateField(field) {
                 field.classList.remove('is-valid', 'is-invalid');
@@ -283,9 +299,29 @@
             }
             
             form.addEventListener('submit', function(e) {
-                if (!validateField(nombreInput) || !validateField(correoInput)) {
+                let isValid = true;
+                
+                // Validar nombre
+                if (!nombreInput.value.trim()) {
+                    nombreInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                // Validar correo
+                if (!correoInput.value.trim()) {
+                    correoInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(correoInput.value)) {
+                        correoInput.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                }
+                
+                if (!isValid) {
                     e.preventDefault();
-                    alert('Por favor, corrija los campos marcados.');
+                    alert('Por favor, complete todos los campos obligatorios correctamente.');
                 }
             });
         });
