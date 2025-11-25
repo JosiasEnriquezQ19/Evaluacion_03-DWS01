@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Gestión de Autores', ~{::main})}">
+
+<main class="bg-light py-4">
+
+    <div class="container mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-people me-2 text-primary"></i> Gestión de Autores
+                </h1>
+                <p class="text-muted mb-0">Administra todos los autores del sistema</p>
+            </div>
+            <a th:href="@{/autor/nuevo}" class="btn btn-primary btn-lg shadow-sm rounded-3">
+                <i class="bi bi-person-plus me-2"></i> Nuevo Autor
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas ligeras -->
+    <div class="container mb-4">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-secondary mb-1">Total Autores</h6>
+                            <h3 class="fw-bold mb-0" th:text="${#lists.size(autores)}">0</h3>
+                        </div>
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                            <i class="bi bi-people text-primary fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3 text-white" style="background:#10b981;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">Activos</h6>
+                            <h3 class="fw-bold mb-0" id="activosCount">0</h3>
+                        </div>
+                        <div class="rounded-circle bg-white bg-opacity-25 p-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                            <i class="bi bi-check-circle fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3 text-white" style="background:#f59e0b;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">Inactivos</h6>
+                            <h3 class="fw-bold mb-0" id="inactivosCount">0</h3>
+                        </div>
+                        <div class="rounded-circle bg-white bg-opacity-25 p-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                            <i class="bi bi-pause-circle fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3 text-white" style="background:#7c3aed;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">Publicaciones</h6>
+                            <h3 class="fw-bold mb-0">--</h3>
+                        </div>
+                        <div class="rounded-circle bg-white bg-opacity-25 p-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                            <i class="bi bi-file-earmark-text fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda (optimizado) -->
+    <div class="container mb-4">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold mb-1">Estado</label>
+                        <div class="btn-group" role="group" aria-label="Filtros">
+                            <input type="radio" class="btn-check" name="filtroEstado" id="filtroTodos" value="ALL" checked>
+                            <label class="btn btn-outline-primary" for="filtroTodos">Todos</label>
+
+                            <input type="radio" class="btn-check" name="filtroEstado" id="filtroActivos" value="ACTIVO">
+                            <label class="btn btn-outline-success" for="filtroActivos">Activos</label>
+
+                            <input type="radio" class="btn-check" name="filtroEstado" id="filtroInactivos" value="INACTIVO">
+                            <label class="btn btn-outline-warning" for="filtroInactivos">Inactivos</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="buscarAutor" class="form-label fw-semibold mb-1">Buscar autor</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input id="buscarAutor" type="search" class="form-control" placeholder="Nombre, correo..." aria-label="Buscar autor">
+                            <button id="clearSearch" class="btn btn-outline-secondary" type="button" aria-label="Limpiar búsqueda"><i class="bi bi-x"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de autores (optimizada) -->
+    <div class="container mb-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold mb-0"><i class="bi bi-table me-2"></i> Lista de autores</h5>
+                <div class="d-flex gap-2">
+                    <button id="exportBtn" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Exportar">
+                        <i class="bi bi-download me-1"></i> Exportar
+                    </button>
+                    <button id="refreshBtn" class="btn btn-outline-primary btn-sm" type="button" aria-label="Actualizar">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div th:if="${#lists.isEmpty(autores)}" class="text-center py-5">
+                    <i class="bi bi-people display-1 text-muted"></i>
+                    <h5 class="text-muted mt-3">No hay autores registrados</h5>
+                    <a th:href="@{/autor/nuevo}" class="btn btn-primary btn-lg mt-3"><i class="bi bi-person-plus me-2"></i> Agregar Autor</a>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(autores)}" class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="autoresTable">
+                        <thead class="table-light small">
+                            <tr>
+                                <th class="ps-4">#</th>
+                                <th>Autor</th>
+                                <th>Correo</th>
+                                <th>Estado</th>
+                                <th>Publicaciones</th>
+                                <th class="text-center pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="autor, iterStat : ${autores}" class="author-row" th:data-id="${autor.id}" th:data-nombre="${autor.nombre}" th:data-correo="${autor.correo}" th:data-estado="${autor.estado}">
+                                <td class="ps-4 fw-semibold text-muted" th:text="${iterStat.count}">1</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold me-3 d-flex align-items-center justify-content-center" style="width:44px;height:44px;">
+                                            <span th:text="${#strings.substring(autor.nombre,0,1).toUpperCase()}">A</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold" th:text="${autor.nombre}">Nombre</div>
+                                            <small class="text-muted">ID: <span th:text="${autor.id}">1</span></small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><i class="bi bi-envelope text-muted me-2"></i><span th:text="${autor.correo}">correo@ejemplo.com</span></td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2" th:classappend="${autor.estado=='ACTIVO'} ? ' bg-success text-white' : ' bg-warning text-dark'">
+                                        <i class="bi me-1" th:classappend="${autor.estado=='ACTIVO'} ? ' bi-check-circle' : ' bi-pause-circle'"></i>
+                                        <span th:text="${autor.estado=='ACTIVO' ? 'Activo' : 'Inactivo'}"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/publicacion/autor/{id}(id=${autor.id})}" class="btn btn-outline-info btn-sm">Ver</a>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-inline-flex gap-1" role="group" aria-label="Acciones">
+                                        <a th:href="@{/autor/autor/{id}(id=${autor.id})}" class="btn btn-sm btn-outline-primary" title="Ver" data-bs-toggle="tooltip"><i class="bi bi-eye"></i></a>
+                                        <a th:href="@{/autor/editar/{id}(id=${autor.id})}" class="btn btn-sm btn-outline-warning" title="Editar" data-bs-toggle="tooltip"><i class="bi bi-pencil"></i></a>
+
+                                        <div class="btn-group" role="group">
+                                            <button id="actionsMenuBtn" type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Más acciones"><i class="bi bi-gear"></i></button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li th:if="${autor.estado=='INACTIVO'}">
+                                                    <form th:action="@{/autor/activar/{id}(id=${autor.id})}" method="post" class="m-0">
+                                                        <button type="submit" class="dropdown-item text-success">Activar</button>
+                                                    </form>
+                                                </li>
+                                                <li th:if="${autor.estado=='ACTIVO'}">
+                                                    <form th:action="@{/autor/inactivar/{id}(id=${autor.id})}" method="post" class="m-0">
+                                                        <button type="submit" class="dropdown-item text-warning">Inactivar</button>
+                                                    </form>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="#" th:onclick="|showAuthorInfo(${autor.id})|">Ver información</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white border-0">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <small class="text-muted">Mostrando <strong id="visibleCount" th:text="${#lists.size(autores)}">0</strong> autores</small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted me-3">Última actualización: <span id="lastUpdate">Ahora</span></small>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Paginación">
+                            <button class="btn btn-outline-secondary" id="prevPage" type="button" aria-label="Página anterior"><i class="bi bi-chevron-left"></i></button>
+                            <button class="btn btn-outline-secondary active" type="button">1</button>
+                            <button class="btn btn-outline-secondary" id="nextPage" type="button" aria-label="Siguiente página"><i class="bi bi-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Estilos ligeros y GPU-friendly -->
+    <style>
+        .rounded-4 { border-radius: 12px !important; }
+        .card { overflow: hidden; }
+        .author-row { transition: background-color 180ms ease, transform 180ms ease; }
+        .author-row:active { transform: translateY(1px); }
+        /* Evitar animaciones costosas en dispositivos móviles */
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; animation: none !important; }
+        }
+    </style>
+
+    <!-- Scripts optimizados: delegación, debounce, evitar repaints innecesarios -->
+    <script>
+        (function(){
+            // Helpers
+            const $ = selector => document.querySelector(selector);
+            const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+            const debounce = (fn, wait=200) => {
+                let t;
+                return (...args) => { clearTimeout(t); t = setTimeout(()=> fn.apply(this,args), wait); };
+            };
+
+            // Elements
+            const buscarInput = $('#buscarAutor');
+            const clearBtn = $('#clearSearch');
+            const filterRadios = Array.from(document.querySelectorAll('input[name="filtroEstado"]')) || Array.from(document.querySelectorAll('input[name="filtroEstado"]'));
+            const rowsSelector = '#autoresTable tbody tr.author-row';
+            const visibleCountEl = $('#visibleCount');
+            const activosEl = $('#activosCount');
+            const inactivosEl = $('#inactivosCount');
+            const lastUpdateEl = $('#lastUpdate');
+            const refreshBtn = $('#refreshBtn');
+            const exportBtn = $('#exportBtn');
+
+            function getRows() { return Array.from(document.querySelectorAll(rowsSelector)); }
+
+            function updateCounts() {
+                const rows = getRows();
+                let activos = 0, inactivos = 0;
+                rows.forEach(r => {
+                    const estado = (r.dataset.estado || '').toUpperCase();
+                    if (estado === 'ACTIVO') activos++; else if (estado === 'INACTIVO') inactivos++;
+                });
+                activosEl && (activosEl.textContent = activos);
+                inactivosEl && (inactivosEl.textContent = inactivos);
+            }
+
+            function filterAndSearch() {
+                const query = buscarInput ? (buscarInput.value || '').trim().toLowerCase() : '';
+                const activeFilter = (document.querySelector('input[name="filtroEstado"]:checked') || { value: 'ALL' }).value;
+                const rows = getRows();
+                let visible = 0;
+
+                rows.forEach(r => {
+                    const nombre = (r.dataset.nombre || '').toLowerCase();
+                    const correo = (r.dataset.correo || '').toLowerCase();
+                    const estado = (r.dataset.estado || '').toUpperCase();
+
+                    let matchesFilter = (activeFilter === 'ALL') || (activeFilter === estado);
+                    let matchesQuery = !query || nombre.includes(query) || correo.includes(query);
+
+                    if (matchesFilter && matchesQuery) {
+                        r.style.display = '';
+                        visible++;
+                    } else {
+                        r.style.display = 'none';
+                    }
+                });
+
+                visibleCountEl && (visibleCountEl.textContent = visible);
+            }
+
+            // Debounced search to avoid frequent reflows
+            const debouncedFilter = debounce(filterAndSearch, 150);
+
+            // Event bindings (delegation where useful)
+            if (buscarInput) buscarInput.addEventListener('input', debouncedFilter);
+            if (clearBtn) clearBtn.addEventListener('click', ()=> { if (buscarInput) { buscarInput.value=''; debouncedFilter(); } });
+
+            document.addEventListener('change', function(e){
+                if (e.target && e.target.name === 'filtroEstado') debouncedFilter();
+            });
+
+            // Tooltips init (bootstrap) - lazy init when interacting
+            document.addEventListener('mouseover', function initTooltips(e){
+                const el = e.target.closest('[data-bs-toggle="tooltip"]');
+                if (el && !el._bsTooltip) {
+                    el._bsTooltip = new bootstrap.Tooltip(el);
+                }
+            }, { once: false });
+
+            // Buttons
+            refreshBtn && refreshBtn.addEventListener('click', ()=> location.reload());
+            exportBtn && exportBtn.addEventListener('click', ()=> {
+                // Export CSV minimal: headers + visible rows
+                const headers = ['ID','Nombre','Correo','Estado'];
+                const rows = getRows().filter(r => r.style.display !== 'none').map(r => {
+                    return [r.dataset.id || '', r.dataset.nombre || '', r.dataset.correo || '', r.dataset.estado || ''];
+                });
+                const csv = [headers.join(','), ...rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(','))].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'autores_export.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+            });
+
+            // Simple pagination placeholders (client-side hooks)
+            $('#prevPage')?.addEventListener('click', ()=> console.log('prev'));
+            $('#nextPage')?.addEventListener('click', ()=> console.log('next'));
+
+            // Show author info
+            window.showAuthorInfo = function(id){
+                // Could be replaced with modal fetch later
+                const row = document.querySelector('tr.author-row[data-id="'+id+'"]');
+                if (row) {
+                    const nombre = row.dataset.nombre || '—';
+                    const correo = row.dataset.correo || '—';
+                    alert('Autor: '+nombre+'\nCorreo: '+correo+'\nID: '+id);
+                }
+            };
+
+            // On load
+            updateCounts();
+            filterAndSearch();
+            lastUpdateEl && (lastUpdateEl.textContent = new Date().toLocaleString());
+
+            // Performance: remove unused references
+            // (Nothing else heavy running)
+        })();
+    </script>
+
+</main>
+
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Detalle de Publicación', ~{::main})}">
+
+<main class="py-5">
+    <div class="container">
+
+        <!-- Botón regresar -->
+        <div class="mb-4">
+            <a th:href="@{/publicacion}" class="btn btn-outline-primary rounded-pill px-4 py-2">
+                <i class="bi bi-arrow-left me-2"></i>Volver al Blog
+            </a>
+        </div>
+
+        <!-- Contenedor tipo Medium -->
+        <div class="mx-auto" style="max-width: 820px;">
+
+            <!-- Autor y metadata -->
+            <div class="d-flex align-items-start justify-content-between mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="me-3" style="width:55px; height:55px; border-radius:50%; background:#e3e6f9; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:1.3rem; color:#4a4fa3;" th:text="${#strings.substring(autor.nombre,0,1)}">A</div>
+                    <div>
+                        <h6 class="fw-bold mb-0" th:text="${autor.nombre}">Autor</h6>
+                        <small class="text-muted" th:if="${publicacion.fechaPublicacion != null}" th:text="${#temporals.format(publicacion.fechaPublicacion, 'dd MMM yyyy')}">fecha</small>
+                        <small class="text-muted" th:if="${publicacion.fechaPublicacion == null}">Sin fecha de publicación</small>
+                        <br>
+                        <span th:if="${publicacion.estado == 'BORRADOR'}" class="badge bg-warning mt-1">Borrador</span>
+                        <span th:if="${publicacion.estado == 'PUBLICADO'}" class="badge bg-success mt-1">Publicado</span>
+                        <span th:if="${publicacion.estado == 'ARCHIVADO'}" class="badge bg-secondary mt-1">Archivado</span>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-circle shadow-sm px-2" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><a th:href="@{/publicacion/editar/{id}(id=${publicacion.id})}" class="dropdown-item"><i class="bi bi-pencil me-2 text-warning"></i>Editar</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sharePost()"><i class="bi bi-share me-2 text-info"></i>Compartir</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete()"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- TÍTULO -->
+            <h1 class="fw-bold mb-4" style="font-size:2.4rem; line-height:1.2;" th:text="${publicacion.titulo}">Título</h1>
+
+            <!-- CONTENIDO ESTILO MEDIUM -->
+            <article class="mb-5" style="font-size:1.25rem; line-height:1.85; color:#2c2c2c;">
+                <div style="white-space: pre-wrap;" th:text="${publicacion.contenido}">Contenido de la publicación...</div>
+            </article>
+
+            <!-- INFO ADICIONAL -->
+            <div class="border-top pt-4 mt-5">
+                <h6 class="fw-bold mb-3">Detalles</h6>
+                <p class="mb-1"><strong>ID:</strong> <span th:text="${publicacion.id}"></span></p>
+                <p class="mb-1"><strong>Autor:</strong> <span th:text="${autor.nombre}"></span></p>
+                <p class="mb-1" th:if="${publicacion.fechaPublicacion != null}"><strong>Publicado:</strong> <span th:text="${#temporals.format(publicacion.fechaPublicacion,'dd/MM/yyyy')}"></span></p>
+                <p class="mb-1"><strong>Modificado:</strong> <span th:if="${publicacion.fechaModificacion != null}" th:text="${#temporals.format(publicacion.fechaModificacion,'dd/MM/yyyy HH:mm')}"></span></p>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+</html>

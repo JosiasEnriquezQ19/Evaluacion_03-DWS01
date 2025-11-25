@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{fragments/layout :: layout('Registrar Autor', ~{::main})}">
+
+<main>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-person-plus text-primary me-2"></i>
+                    Registrar Nuevo Autor
+                </h1>
+                <p class="page-subtitle">Completa la información para agregar un nuevo autor al sistema</p>
+            </div>
+            <a th:href="@{/autor}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Volver a Autores
+            </a>
+        </div>
+    </div>
+        
+    <!-- Formulario Principal -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            
+            <!-- Formulario Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar me-3">
+                            <i class="bi bi-person-plus fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">Datos del Autor</h5>
+                            <small class="text-muted">Información básica requerida</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form th:action="@{/autor/save}" th:object="${autor}" method="post" id="autorForm">
+                        
+                        <!-- Preview Avatar -->
+                        <div class="text-center mb-4">
+                            <div class="avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;" id="avatarPreview">
+                                <span id="avatarInitial">?</span>
+                            </div>
+                            <small class="text-muted">Vista previa del avatar</small>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <!-- Campo Nombre -->
+                            <div class="col-12">
+                                <label for="nombre" class="form-label fw-semibold">
+                                    <i class="bi bi-person text-primary me-2"></i>
+                                    Nombre Completo
+                                    <span class="text-danger ms-1">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           th:field="*{nombre}"
+                                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                           id="nombre" 
+                                           placeholder="Ejm: Juan Carlos Pérez"
+                                           autocomplete="name">
+                                    <div th:if="${#fields.hasErrors('nombre')}" 
+                                         class="invalid-feedback"
+                                         th:errors="*{nombre}">
+                                    </div>
+                                </div>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Ingrese el nombre completo del autor
+                                </div>
+                            </div>
+                            
+                            <!-- Campo Correo -->
+                            <div class="col-12">
+                                <label for="correo" class="form-label fw-semibold">
+                                    <i class="bi bi-envelope text-primary me-2"></i>
+                                    Correo Electrónico
+                                    <span class="text-danger ms-1">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" 
+                                           class="form-control form-control-lg" 
+                                           th:field="*{correo}"
+                                           th:classappend="${#fields.hasErrors('correo')} ? 'is-invalid' : ''"
+                                           id="correo" 
+                                           placeholder="correo@ejemplo.com"
+                                           autocomplete="email">
+                                    <div th:if="${#fields.hasErrors('correo')}" 
+                                         class="invalid-feedback"
+                                         th:errors="*{correo}">
+                                    </div>
+                                </div>
+                                <div class="form-text">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Este correo debe ser único en el sistema
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Separador -->
+                        <hr class="my-4">
+                        
+                        <!-- Botones de acción -->
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a th:href="@{/autor}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Guardar Autor
+                            </button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Cards informativos -->
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-primary">
+                        <div class="card-body text-center">
+                            <i class="bi bi-shield-check text-primary fs-1 mb-2"></i>
+                            <h6 class="card-title">Información Segura</h6>
+                            <p class="card-text small text-muted mb-0">
+                                Los datos se almacenan de forma segura
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-lightning text-success fs-1 mb-2"></i>
+                            <h6 class="card-title">Proceso Rápido</h6>
+                            <p class="card-text small text-muted mb-0">
+                                Solo requiere información básica
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Sidebar de ayuda -->
+        <div class="col-lg-4">
+            <div class="position-sticky" style="top: 2rem;">
+                
+                <!-- Ayuda -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-question-circle me-2"></i>
+                            Ayuda
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong class="text-primary">Nombre:</strong>
+                            <small class="d-block text-muted">
+                                Ingrese el nombre completo del autor. Este será visible en las publicaciones.
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <strong class="text-primary">Correo:</strong>
+                            <small class="d-block text-muted">
+                                Dirección de correo única. Se usará para notificaciones y contacto.
+                            </small>
+                        </div>
+                        <div class="alert alert-info mb-0">
+                            <small>
+                                <i class="bi bi-lightbulb me-1"></i>
+                                <strong>Tip:</strong> Una vez creado, el autor estará activo automáticamente.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-bar-chart me-2"></i>
+                            Estadísticas
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Total Autores:</span>
+                            <span class="fw-bold">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Nuevos este mes:</span>
+                            <span class="fw-bold text-success">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Activos:</span>
+                            <span class="fw-bold text-primary">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- CSS personalizado -->
+    <style>
+        .form-control-lg {
+            font-size: 1rem;
+            padding: 0.875rem 1rem;
+        }
+        
+        .input-group-text {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .avatar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        #avatarPreview {
+            border: 3px solid #e2e8f0;
+        }
+        
+        .form-floating-custom {
+            position: relative;
+        }
+        
+        .bounce {
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            80% { transform: translateY(-5px); }
+        }
+    </style>
+    
+    <!-- JavaScript mejorado -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nombreInput = document.getElementById('nombre');
+            const avatarInitial = document.getElementById('avatarInitial');
+            const avatarPreview = document.getElementById('avatarPreview');
+            
+            // Actualizar avatar preview
+            function updateAvatarPreview() {
+                const nombre = nombreInput.value.trim();
+                const initial = nombre ? nombre.charAt(0).toUpperCase() : '?';
+                avatarInitial.textContent = initial;
+                
+                // Cambiar color basado en la inicial
+                const colors = [
+                    'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                    'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                    'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'
+                ];
+                
+                const colorIndex = initial.charCodeAt(0) % colors.length;
+                avatarPreview.style.background = colors[colorIndex];
+                
+                // Animación de cambio
+                avatarPreview.classList.add('bounce');
+                setTimeout(() => avatarPreview.classList.remove('bounce'), 600);
+            }
+            
+            // Event listeners
+            nombreInput.addEventListener('input', updateAvatarPreview);
+            
+            // Validación en tiempo real
+            const form = document.getElementById('autorForm');
+            const inputs = form.querySelectorAll('input[required], input[type="email"]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid')) {
+                        validateField(this);
+                    }
+                });
+            });
+            
+            function validateField(field) {
+                const value = field.value.trim();
+                
+                // Limpiar clases anteriores
+                field.classList.remove('is-valid', 'is-invalid');
+                
+                if (field.hasAttribute('required') && !value) {
+                    field.classList.add('is-invalid');
+                    return false;
+                }
+                
+                if (field.type === 'email' && value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) {
+                        field.classList.add('is-invalid');
+                        return false;
+                    }
+                }
+                
+                field.classList.add('is-valid');
+                return true;
+            }
+            
+            // Validación del formulario
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                inputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    
+                    // Mostrar alerta
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-danger alert-dismissible fade show';
+                    alert.innerHTML = `
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Error:</strong> Por favor, corrija los campos marcados en rojo.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    
+                    form.insertBefore(alert, form.firstChild);
+                    
+                    // Scroll al primer error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                }
+            });
+            
+            // Inicializar avatar
+            updateAvatarPreview();
+        });
+    </script>
+        
+    </div>
+</main>
+
+</html>

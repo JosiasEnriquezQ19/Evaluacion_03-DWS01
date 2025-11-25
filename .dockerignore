@@ -1,0 +1,16 @@
+# Excluir archivos innecesarios para Docker
+target/
+!target/eva03-0.0.1-SNAPSHOT.jar
+.mvn/wrapper/maven-wrapper.jar
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+*.md
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+*.log

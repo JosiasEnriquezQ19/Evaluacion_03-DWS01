@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{fragments/layout :: layout('Editar Autor', ~{::main})}">
+
+<main>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-pencil-square text-warning me-2"></i>
+                    Editar Autor
+                </h1>
+                <p class="page-subtitle">Modifica la información del autor seleccionado</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/autor}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Volver a Autores
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario Principal -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            
+            <!-- Información del Autor -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar me-3">
+                            <span th:text="${#strings.toUpperCase(#strings.substring(autor.nombre, 0, 1))}">A</span>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">Editar Información</h5>
+                            <small class="text-muted">ID del Autor: <span th:text="${autor.id}">--</span></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form th:action="@{/autor/update/{id}(id=${autor.id})}" th:object="${autor}" method="post" id="editarAutorForm">
+                        
+                        <div class="row g-4">
+                            <!-- Campo Nombre -->
+                            <div class="col-12">
+                                <label for="nombre" class="form-label fw-semibold">
+                                    <i class="bi bi-person text-primary me-2"></i>
+                                    Nombre Completo
+                                    <span class="text-danger ms-1">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           th:field="*{nombre}"
+                                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                           id="nombre" 
+                                           placeholder="Ejm: Juan Carlos Pérez"
+                                           autocomplete="name">
+                                    <div th:if="${#fields.hasErrors('nombre')}" 
+                                         class="invalid-feedback"
+                                         th:errors="*{nombre}">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Campo Correo -->
+                            <div class="col-12">
+                                <label for="correo" class="form-label fw-semibold">
+                                    <i class="bi bi-envelope text-primary me-2"></i>
+                                    Correo Electrónico
+                                    <span class="text-danger ms-1">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" 
+                                           class="form-control form-control-lg" 
+                                           th:field="*{correo}"
+                                           th:classappend="${#fields.hasErrors('correo')} ? 'is-invalid' : ''"
+                                           id="correo" 
+                                           placeholder="correo@ejemplo.com"
+                                           autocomplete="email">
+                                    <div th:if="${#fields.hasErrors('correo')}" 
+                                         class="invalid-feedback"
+                                         th:errors="*{correo}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estado Actual -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-activity text-primary me-2"></i>
+                                    Estado Actual
+                                </label>
+                                <div class="p-3 border rounded bg-light">
+                                    <div class="d-flex align-items-center">
+                                        <span th:if="${autor.estado == 'ACTIVO'}" class="badge bg-success me-3">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            ACTIVO
+                                        </span>
+                                        <span th:if="${autor.estado == 'INACTIVO'}" class="badge bg-warning me-3">
+                                            <i class="bi bi-pause-circle me-1"></i>
+                                            INACTIVO
+                                        </span>
+                                        <small class="text-muted">
+                                            Para cambiar el estado, use las opciones en la lista de autores
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Separador -->
+                        <hr class="my-4">
+                        
+                        <!-- Botones de acción -->
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a th:href="@{/autor}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Actualizar Autor
+                            </button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Información del Sistema
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Fecha de registro:</small>
+                            <strong>No disponible</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Última modificación:</small>
+                            <strong>Ahora</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Sidebar con acciones -->
+        <div class="col-lg-4">
+            <div class="position-sticky" style="top: 2rem;">
+                
+                <!-- Acciones rápidas -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-lightning me-2"></i>
+                            Acciones Rápidas
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/publicacion/autor/{id}(id=${autor.id})}" class="btn btn-outline-info">
+                                <i class="bi bi-file-earmark-text me-2"></i>
+                                Ver Publicaciones
+                            </a>
+                            <a th:href="@{/publicacion/nuevo?autorId={id}(id=${autor.id})}" class="btn btn-outline-success">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Nueva Publicación
+                            </a>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-gear me-2"></i>
+                                    Más Opciones
+                                </button>
+                                <ul class="dropdown-menu w-100">
+                                    <li th:if="${autor.estado == 'INACTIVO'}">
+                                        <form th:action="@{/autor/activar/{id}(id=${autor.id})}" method="post" class="d-inline w-100">
+                                            <button type="submit" class="dropdown-item text-success">
+                                                <i class="bi bi-check-circle me-2"></i>
+                                                Activar Autor
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li th:if="${autor.estado == 'ACTIVO'}">
+                                        <form th:action="@{/autor/inactivar/{id}(id=${autor.id})}" method="post" class="d-inline w-100">
+                                            <button type="submit" class="dropdown-item text-warning">
+                                                <i class="bi bi-pause-circle me-2"></i>
+                                                Inactivar Autor
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/autor/autor/{id}(id=${autor.id})}">
+                                            <i class="bi bi-eye me-2"></i>
+                                            Ver Detalles
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Validaciones -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Validaciones (RNF7.V2)
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            <small>
+                                <i class="bi bi-info-circle me-1"></i>
+                                <strong>Formato de Correo:</strong> Se valida que tenga formato válido de email.
+                            </small>
+                        </div>
+                        <div class="alert alert-warning mb-0">
+                            <small>
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                <strong>Único:</strong> El correo debe ser único en el sistema.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- JavaScript para validación -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('editarAutorForm');
+            const nombreInput = document.getElementById('nombre');
+            const correoInput = document.getElementById('correo');
+            
+            // Validación en tiempo real
+            [nombreInput, correoInput].forEach(input => {
+                input.addEventListener('input', function() {
+                    validateField(this);
+                });
+            });
+            
+            function validateField(field) {
+                field.classList.remove('is-valid', 'is-invalid');
+                
+                if (field.type === 'email' && field.value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(field.value)) {
+                        field.classList.add('is-invalid');
+                        return false;
+                    }
+                }
+                
+                if (field.value.trim()) {
+                    field.classList.add('is-valid');
+                }
+                
+                return true;
+            }
+            
+            form.addEventListener('submit', function(e) {
+                if (!validateField(nombreInput) || !validateField(correoInput)) {
+                    e.preventDefault();
+                    alert('Por favor, corrija los campos marcados.');
+                }
+            });
+        });
+    </script>
+    
+</main>
+
+</html>

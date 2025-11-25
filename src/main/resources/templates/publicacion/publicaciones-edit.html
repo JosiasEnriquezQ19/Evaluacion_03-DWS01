@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{fragments/layout :: layout('Editar Publicación', ~{::main})}">
+
+<main>
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="d-flex align-items-center mb-3">
+            <a th:href="@{/publicacion}" class="btn btn-outline-secondary me-3" data-bs-toggle="tooltip" title="Volver a la lista">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="page-title mb-0">
+                    <i class="bi bi-pencil-square text-warning me-2"></i>
+                    Editar Publicación
+                </h1>
+                <p class="page-subtitle mb-0">Modifica la información de la publicación (RF7.8)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publication Status and Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card border-primary">
+                <div class="card-header bg-primary-soft">
+                    <h6 class="card-title text-primary mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Estado Actual de la Publicación
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <!-- Estado actual -->
+                                <span th:if="${publicacion.estado == 'BORRADOR'}" class="badge bg-warning-soft text-warning px-3 py-2 me-3">
+                                    <i class="bi bi-file-earmark me-1"></i>Borrador
+                                </span>
+                                <span th:if="${publicacion.estado == 'PUBLICADO'}" class="badge bg-success-soft text-success px-3 py-2 me-3">
+                                    <i class="bi bi-check-circle me-1"></i>Publicado
+                                </span>
+                                <span th:if="${publicacion.estado == 'ARCHIVADO'}" class="badge bg-secondary-soft text-secondary px-3 py-2 me-3">
+                                    <i class="bi bi-archive me-1"></i>Archivado
+                                </span>
+                                <div>
+                                    <div class="fw-semibold" th:text="${publicacion.titulo}">Título</div>
+                                    <small class="text-muted">
+                                        ID: <span th:text="${publicacion.id}">1</span> | 
+                                        Creado: <span th:text="${#temporals.format(publicacion.fechaPublicacion, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                                Última modificación: 
+                                <strong th:text="${#temporals.format(publicacion.fechaModificacion, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</strong>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Acciones Rápidas (RF7.7)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="dropdown w-100">
+                        <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-activity me-2"></i>
+                            Cambiar Estado
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            <li th:if="${publicacion.estado != 'BORRADOR'}">
+                                <form th:action="@{/publicacion/cambiar-estado/{id}(id=${publicacion.id})}" method="post" class="d-inline w-100">
+                                    <input type="hidden" name="nuevoEstado" value="BORRADOR">
+                                    <button type="submit" class="dropdown-item text-warning">
+                                        <i class="bi bi-file-earmark me-2"></i>Convertir a Borrador
+                                    </button>
+                                </form>
+                            </li>
+                            <li th:if="${publicacion.estado != 'PUBLICADA'}">
+                                <form th:action="@{/publicacion/cambiar-estado/{id}(id=${publicacion.id})}" method="post" class="d-inline w-100">
+                                    <input type="hidden" name="nuevoEstado" value="PUBLICADA">
+                                    <button type="submit" class="dropdown-item text-success">
+                                        <i class="bi bi-check-circle me-2"></i>Publicar Ahora
+                                    </button>
+                                </form>
+                            </li>
+                            <li th:if="${publicacion.estado != 'ARCHIVADA'}">
+                                <form th:action="@{/publicacion/cambiar-estado/{id}(id=${publicacion.id})}" method="post" class="d-inline w-100">
+                                    <input type="hidden" name="nuevoEstado" value="ARCHIVADA">
+                                    <button type="submit" class="dropdown-item text-secondary">
+                                        <i class="bi bi-archive me-2"></i>Archivar Publicación
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Requirements -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info-soft">
+                    <h6 class="card-title text-info mb-0">
+                        <i class="bi bi-shield-check me-2"></i>
+                        Requisitos de Validación (RNF7.V1, RNF7.V3, RNF7.V4)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="validation-item">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <span><strong>Título:</strong> Entre 5 y 100 caracteres</span>
+                                <div class="text-sm text-muted">Actual: <span id="currentTitleLength" th:text="${#strings.length(publicacion.titulo)}">0</span> caracteres</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="validation-item">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <span><strong>Autor:</strong> Debe estar asociado</span>
+                                <div class="text-sm text-muted">Actual: Autor ID <span th:text="${publicacion.autorId}">1</span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="validation-item">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <span><strong>Estado:</strong> BORRADOR, PUBLICADO, ARCHIVADO</span>
+                                <div class="text-sm text-muted">Actual: <span th:text="${publicacion.estado}">BORRADOR</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Edit Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        Modificar Información
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/publicacion/editar/{id}(id=${publicacion.id})}" method="post" th:object="${publicacion}" id="editForm">
+                        
+                        <!-- Título (RNF7.V1) -->
+                        <div class="mb-4">
+                            <label for="titulo" class="form-label fw-semibold required">
+                                <i class="bi bi-file-text me-1"></i>
+                                Título de la Publicación
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-pencil"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="titulo"
+                                       th:field="*{titulo}"
+                                       placeholder="Título de la publicación"
+                                       minlength="5" 
+                                       maxlength="100" 
+                                       required>
+                                <span class="input-group-text" id="tituloCounter">
+                                    <span th:text="${#strings.length(publicacion.titulo)}">0</span>/100
+                                </span>
+                            </div>
+                            <div class="form-text d-flex justify-content-between">
+                                <small>
+                                    <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                                    Debe tener entre 5 y 100 caracteres (RNF7.V1)
+                                </small>
+                                <small class="text-success" id="tituloValidation">✓ Longitud válida</small>
+                            </div>
+                            <div class="invalid-feedback" id="tituloError"></div>
+                            <div th:if="${#fields.hasErrors('titulo')}" class="text-danger mt-1">
+                                <small th:errors="*{titulo}"></small>
+                            </div>
+                        </div>
+
+                        <!-- Autor (RNF7.V3) -->
+                        <div class="mb-4">
+                            <label for="autorId" class="form-label fw-semibold required">
+                                <i class="bi bi-person me-1"></i>
+                                Autor de la Publicación
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person-check"></i>
+                                </span>
+                                <select class="form-select form-select-lg" 
+                                        id="autorId" 
+                                        th:field="*{autorId}" 
+                                        required>
+                                    <option value="">Selecciona un autor...</option>
+                                    <option th:each="autor : ${autores}" 
+                                            th:value="${autor.id}" 
+                                            th:text="${autor.nombre}"
+                                            th:selected="${autor.id == publicacion.autorId}">
+                                        Nombre del Autor
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-text">
+                                <small>
+                                    <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                                    Requerido según RNF7.V3
+                                </small>
+                            </div>
+                            <div class="invalid-feedback" id="autorError"></div>
+                            <div th:if="${#fields.hasErrors('autorId')}" class="text-danger mt-1">
+                                <small th:errors="*{autorId}"></small>
+                            </div>
+                        </div>
+
+                        <!-- Contenido -->
+                        <div class="mb-4">
+                            <label for="contenido" class="form-label fw-semibold required">
+                                <i class="bi bi-file-earmark-richtext me-1"></i>
+                                Contenido de la Publicación
+                            </label>
+                            <div class="position-relative">
+                                <textarea class="form-control" 
+                                          id="contenido" 
+                                          th:field="*{contenido}"
+                                          placeholder="Contenido de la publicación..."
+                                          rows="10" 
+                                          required></textarea>
+
+                            </div>
+                            <div class="form-text d-flex justify-content-between">
+                                <small>
+                                    <i class="bi bi-info-circle text-info me-1"></i>
+                                    Soporta formato Markdown
+                                </small>
+                                <small id="contenidoCounter" class="text-muted">
+                                    <span th:text="${#strings.length(publicacion.contenido)}">0</span> caracteres
+                                </small>
+                            </div>
+                            <div class="invalid-feedback" id="contenidoError"></div>
+                            <div th:if="${#fields.hasErrors('contenido')}" class="text-danger mt-1">
+                                <small th:errors="*{contenido}"></small>
+                            </div>
+                        </div>
+
+                        <!-- Estado (RNF7.V4) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold required">
+                                <i class="bi bi-activity me-1"></i>
+                                Estado de la Publicación
+                            </label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-check-card">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="estado" 
+                                               id="estadoBorrador"
+                                               th:field="*{estado}"
+                                               value="BORRADOR">
+                                        <label class="form-check-label w-100 text-center p-3 border rounded" for="estadoBorrador">
+                                            <div class="text-warning fs-2">
+                                                <i class="bi bi-file-earmark"></i>
+                                            </div>
+                                            <div class="fw-semibold">Borrador</div>
+                                            <small class="text-muted">No visible públicamente</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-check-card">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="estado" 
+                                               id="estadoPublicada"
+                                               th:field="*{estado}"
+                                               value="PUBLICADO">
+                                        <label class="form-check-label w-100 text-center p-3 border rounded" for="estadoPublicada">
+                                            <div class="text-success fs-2">
+                                                <i class="bi bi-check-circle"></i>
+                                            </div>
+                                            <div class="fw-semibold">Publicado</div>
+                                            <small class="text-muted">Visible para todos</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-check-card">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="estado" 
+                                               id="estadoArchivada"
+                                               th:field="*{estado}"
+                                               value="ARCHIVADO">
+                                        <label class="form-check-label w-100 text-center p-3 border rounded" for="estadoArchivada">
+                                            <div class="text-secondary fs-2">
+                                                <i class="bi bi-archive"></i>
+                                            </div>
+                                            <div class="fw-semibold">Archivado</div>
+                                            <small class="text-muted">Guardada para el futuro</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                <small>
+                                    <i class="bi bi-info-circle text-info me-1"></i>
+                                    Estados válidos según RNF7.V4
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Fechas -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-plus me-1"></i>
+                                    Fecha de Publicación
+                                </label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       th:field="*{fechaPublicacion}">
+                                <small class="form-text text-muted">Fecha en que se publica</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Fecha de Modificación
+                                </label>
+                                <input type="datetime-local" 
+                                       class="form-control" 
+                                       th:field="*{fechaModificacion}"
+                                       readonly>
+                                <small class="form-text text-muted">Se actualiza automáticamente</small>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a th:href="@{/publicacion}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Cancelar Cambios
+                                </a>
+                            </div>
+                            <div class="d-flex gap-2">
+
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            
+            <!-- Revision History -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Historial de Cambios
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <div class="fw-semibold">Publicación creada</div>
+                                <small class="text-muted" th:text="${#temporals.format(publicacion.fechaPublicacion, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning"></div>
+                            <div class="timeline-content">
+                                <div class="fw-semibold">Última modificación</div>
+                                <small class="text-muted" th:text="${#temporals.format(publicacion.fechaModificacion, 'dd/MM/yyyy HH:mm')}">01/01/2024 15:30</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validation Status -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-shield-check me-2"></i>
+                        Estado de Validación
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="validation-status">
+                        <div class="d-flex align-items-center mb-2" id="tituloValidationStatus">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>Título válido</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2" id="autorValidationStatus">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>Autor asignado</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2" id="contenidoValidationStatus">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>Contenido presente</span>
+                        </div>
+                        <div class="d-flex align-items-center" id="estadoValidationStatus">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>Estado válido</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        Consejos de Edición
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled text-sm">
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right text-primary me-2"></i>
+                            Usa <strong>Ctrl+S</strong> para guardar rápido
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right text-primary me-2"></i>
+                            La fecha de modificación se actualiza automáticamente
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right text-primary me-2"></i>
+                            Puedes cambiar el estado sin guardar el formulario
+                        </li>
+                        <li>
+                            <i class="bi bi-arrow-right text-primary me-2"></i>
+                            Usa la vista previa para verificar el formato
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CSS personalizado -->
+    <style>
+        .required::after { content: " *"; color: #dc3545; }
+        
+        .bg-primary-soft { background-color: rgba(99, 102, 241, 0.1) !important; }
+        .bg-info-soft { background-color: rgba(13, 202, 240, 0.1) !important; }
+        .bg-success-soft { background-color: rgba(16, 185, 129, 0.1) !important; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .bg-warning-soft { background-color: rgba(245, 158, 11, 0.1) !important; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .bg-secondary-soft { background-color: rgba(107, 114, 128, 0.1) !important; border: 1px solid rgba(107, 114, 128, 0.2); }
+        
+        .form-check-card .form-check-input:checked + .form-check-label {
+            background-color: var(--bs-primary-bg-subtle);
+            border-color: var(--bs-primary) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+        }
+        
+        .form-check-card .form-check-label {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline { position: relative; }
+        .timeline-item { display: flex; align-items: center; margin-bottom: 1rem; }
+        .timeline-marker { width: 12px; height: 12px; border-radius: 50%; margin-right: 1rem; flex-shrink: 0; }
+        .validation-item { margin-bottom: 1rem; }
+    </style>
+
+    <!-- JavaScript mejorado -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Elementos del formulario
+            const titulo = document.getElementById('titulo');
+            const autorId = document.getElementById('autorId');
+            const contenido = document.getElementById('contenido');
+            
+            // Contadores
+            const tituloCounter = document.getElementById('tituloCounter');
+            const contenidoCounter = document.getElementById('contenidoCounter');
+            
+            // Validación de título en tiempo real
+            titulo?.addEventListener('input', function() {
+                const length = this.value.length;
+                tituloCounter.innerHTML = `${length}/100`;
+                document.getElementById('currentTitleLength').textContent = length;
+                
+                // Validación RNF7.V1
+                const tituloValidation = document.getElementById('tituloValidation');
+                const tituloStatus = document.getElementById('tituloValidationStatus');
+                
+                if (length < 5) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    tituloValidation.textContent = '❌ Muy corto (mín. 5)';
+                    tituloValidation.className = 'text-danger';
+                    tituloStatus.innerHTML = '<i class="bi bi-exclamation-circle-fill text-danger me-2"></i><span>Título muy corto</span>';
+                } else if (length > 100) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    tituloValidation.textContent = '❌ Muy largo (máx. 100)';
+                    tituloValidation.className = 'text-danger';
+                    tituloStatus.innerHTML = '<i class="bi bi-exclamation-circle-fill text-danger me-2"></i><span>Título muy largo</span>';
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    tituloValidation.textContent = '✓ Longitud válida';
+                    tituloValidation.className = 'text-success';
+                    tituloStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i><span>Título válido</span>';
+                }
+            });
+            
+            // Validación de autor
+            autorId?.addEventListener('change', function() {
+                const autorStatus = document.getElementById('autorValidationStatus');
+                
+                if (this.value) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    autorStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i><span>Autor asignado</span>';
+                } else {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    autorStatus.innerHTML = '<i class="bi bi-exclamation-circle-fill text-danger me-2"></i><span>Autor requerido</span>';
+                }
+            });
+            
+            // Contador de contenido
+            contenido?.addEventListener('input', function() {
+                const length = this.value.length;
+                contenidoCounter.innerHTML = `${length} caracteres`;
+                
+                const contenidoStatus = document.getElementById('contenidoValidationStatus');
+                
+                if (this.value.trim().length === 0) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    contenidoStatus.innerHTML = '<i class="bi bi-exclamation-circle-fill text-danger me-2"></i><span>Contenido requerido</span>';
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    contenidoStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i><span>Contenido presente</span>';
+                }
+            });
+            
+            // Atajo de teclado para guardar
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    document.getElementById('editForm').submit();
+                }
+            });
+            
+            // Confirmar cambios de estado
+            document.querySelectorAll('form').forEach(form => {
+                if (form.action.includes('cambiar-estado')) {
+                    form.addEventListener('submit', function(e) {
+                        const estado = this.querySelector('input[name="nuevoEstado"]').value;
+                        if (!confirm(`¿Confirmar cambio de estado a "${estado}"?`)) {
+                            e.preventDefault();
+                        }
+                    });
+                }
+            });
+            
+            // Actualizar fecha de modificación automáticamente
+            setInterval(function() {
+                const fechaModInput = document.querySelector('input[name="fechaModificacion"]');
+                if (fechaModInput) {
+                    const now = new Date();
+                    fechaModInput.value = now.toISOString().slice(0, 16);
+                }
+            }, 60000); // Cada minuto
+            
+            // Validaciones iniciales
+            titulo?.dispatchEvent(new Event('input'));
+            autorId?.dispatchEvent(new Event('change'));
+            contenido?.dispatchEvent(new Event('input'));
+        });
+
+
+    </script>
+
+</main>
+
+</html>

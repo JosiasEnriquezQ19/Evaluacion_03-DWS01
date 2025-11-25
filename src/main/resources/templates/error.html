@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error general</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+        .error-container {
+            text-align: center;
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 500px;
+            width: 90%;
+        }
+        .error-icon {
+            font-size: 4rem;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        .error-description {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+        .btn-home {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <i class="bi bi-exclamation-triangle error-icon"></i>
+        <div class="error-message">Ha ocurrido un error</div>
+        <div class="error-description">
+            <span th:if="${error}" th:text="${error}">Error inesperado</span>
+            <span th:unless="${error}">Ha ocurrido un error inesperado en la aplicación.</span>
+        </div>
+        <a href="/autor" class="btn-home">
+            <i class="bi bi-house"></i>
+            Volver al inicio
+        </a>
+    </div>
+</body>
+</html>

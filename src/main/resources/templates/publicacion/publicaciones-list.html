@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Gestión de Publicaciones', ~{::main})}">
+
+<main class="bg-light py-4">
+
+    <!-- Header -->
+    <div class="container mb-4">
+        <!-- Mensajes manejados por layout.html -->
+        
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-file-earmark-text text-primary me-2"></i> Gestión de Publicaciones
+                </h1>
+                <p class="text-muted mb-0">Administra todas las publicaciones del blog (RF7.6)</p>
+            </div>
+            <a th:href="@{/publicacion/nuevo}" class="btn btn-primary btn-lg shadow-sm rounded-3">
+                <i class="bi bi-plus-circle me-2"></i> Nueva Publicación
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="container mb-4">
+        <div class="row g-3">
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-secondary">Total Publicaciones</h6>
+                            <h3 class="fw-bold" th:text="${#lists.size(publicaciones)}">0</h3>
+                        </div>
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                            <i class="bi bi-file-earmark-text text-primary fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 rounded-4 text-white" style="background:#10b981;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Publicadas</h6>
+                            <h3 class="fw-bold" id="publicadasCount">--</h3>
+                        </div>
+                        <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                            <i class="bi bi-check-circle fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 rounded-4 text-white" style="background:#f59e0b;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Borradores</h6>
+                            <h3 class="fw-bold" id="borradoresCount">--</h3>
+                        </div>
+                        <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                            <i class="bi bi-file-earmark fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 rounded-4 text-white" style="background:#6b7280;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Archivadas</h6>
+                            <h3 class="fw-bold" id="archivadasCount">--</h3>
+                        </div>
+                        <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                            <i class="bi bi-archive fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="container mb-4">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h5 class="fw-semibold"><i class="bi bi-search me-2"></i>Búsqueda y Filtros</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="fw-semibold">Buscar por título</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input id="buscarTitulo" type="text" class="form-control" placeholder="Título..." aria-label="Buscar por título">
+                            <button id="clearTitleSearch" class="btn btn-outline-secondary" type="button" aria-label="Limpiar búsqueda"><i class="bi bi-x"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-semibold">Estado</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="filtroEstado" id="todosEstados" value="ALL" checked>
+                            <label class="btn btn-outline-primary" for="todosEstados">Todos</label>
+
+                            <input type="radio" class="btn-check" name="filtroEstado" id="borrador" value="BORRADOR">
+                            <label class="btn btn-outline-warning" for="borrador">Borrador</label>
+
+                            <input type="radio" class="btn-check" name="filtroEstado" id="publicada" value="PUBLICADO">
+                            <label class="btn btn-outline-success" for="publicada">Publicada</label>
+
+                            <input type="radio" class="btn-check" name="filtroEstado" id="archivada" value="ARCHIVADO">
+                            <label class="btn btn-outline-secondary" for="archivada">Archivada</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-semibold">Autor</label>
+                        <select class="form-select" id="filtroAutor" aria-label="Filtrar por autor">
+                            <option value="">Todos</option>
+                            <option th:each="autor : ${autores}" th:text="${autor.nombre}" th:value="${autor.id}"></option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="container mb-5">
+        <div class="card shadow-sm border-0 rounded-4">
+
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold"><i class="bi bi-table me-2"></i>Lista de Publicaciones</h5>
+                <div class="d-flex gap-2">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Vista">
+                        <button id="tableViewBtn" class="btn btn-outline-secondary active" type="button" aria-pressed="true"><i class="bi bi-table"></i></button>
+                        <button id="cardViewBtn" class="btn btn-outline-secondary" type="button" aria-pressed="false"><i class="bi bi-grid"></i></button>
+                    </div>
+                    <button id="refreshBtn" class="btn btn-outline-primary btn-sm" type="button"><i class="bi bi-arrow-clockwise me-1"></i> Actualizar</button>
+                    <button id="exportBtn" class="btn btn-outline-secondary btn-sm" type="button"><i class="bi bi-download me-1"></i> Exportar</button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+
+                <div th:if="${#lists.isEmpty(publicaciones)}" class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-file-earmark-text display-1 text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-2">No hay publicaciones</h4>
+                    <p class="text-muted mb-4">Comienza creando tu primera publicación para el blog</p>
+                    <a th:href="@{/publicacion/nuevo}" class="btn btn-primary btn-lg shadow-sm">
+                        <i class="bi bi-plus-circle me-2"></i>Crear Primera Publicación
+                    </a>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(publicaciones)}" class="table-responsive">
+                    <table id="publicacionesTable" class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th class="ps-4">#</th>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Estado</th>
+                                <th>Fecha Pub.</th>
+                                <th>Modificado</th>
+                                <th class="text-center pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="pub, iterStat : ${publicaciones}" 
+                                class="publicacion-row" 
+                                th:data-id="${pub.id}" 
+                                th:data-titulo="${pub.titulo}" 
+                                th:data-autor="${pub.autorId}" 
+                                th:data-estado="${pub.estado}">
+                                <td class="ps-4 fw-semibold text-muted" th:text="${iterStat.count}">1</td>
+                                <td>
+                                    <div class="fw-semibold" th:text="${pub.titulo}">Título</div>
+                                    <small class="text-muted d-block" th:text="${#strings.abbreviate(pub.contenido,120)}">Resumen...</small>
+                                </td>
+                                <td>
+                                    <span th:text="${pub.autorId}">Autor ID</span>
+                                </td>
+                                <td>
+                                    <span th:if="${pub.estado == 'BORRADOR'}" class="badge bg-warning text-dark px-3 py-2">
+                                        <i class="bi bi-file-earmark me-1"></i>Borrador
+                                    </span>
+                                    <span th:if="${pub.estado == 'PUBLICADO'}" class="badge bg-success text-white px-3 py-2">
+                                        <i class="bi bi-check-circle me-1"></i>Publicado
+                                    </span>
+                                    <span th:if="${pub.estado == 'ARCHIVADO'}" class="badge bg-secondary text-white px-3 py-2">
+                                        <i class="bi bi-archive me-1"></i>Archivado
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- Solo mostrar fecha si está publicado -->
+                                    <small class="text-muted" th:if="${pub.estado == 'PUBLICADO' and pub.fechaPublicacion != null}" th:text="${#temporals.format(pub.fechaPublicacion, 'dd/MM/yyyy')}">01/01/2024</small>
+                                    <small class="text-muted fst-italic" th:if="${pub.estado == 'BORRADOR'}">—</small>
+                                    <small class="text-muted fst-italic" th:if="${pub.estado == 'ARCHIVADO'}">—</small>
+                                    <small class="text-muted fst-italic" th:if="${pub.estado == 'PUBLICADO' and pub.fechaPublicacion == null}">Sin fecha</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted" th:if="${pub.fechaModificacion != null}" th:text="${#temporals.format(pub.fechaModificacion, 'dd/MM HH:mm')}">01/01 10:30</small>
+                                    <small class="text-muted fst-italic" th:if="${pub.fechaModificacion == null}">—</small>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-inline-flex gap-1" role="group">
+                                        <a th:href="@{/publicacion/{id}(id=${pub.id})}" class="btn btn-sm btn-outline-info" title="Ver" data-bs-toggle="tooltip"><i class="bi bi-eye"></i></a>
+                                        <a th:href="@{/publicacion/editar/{id}(id=${pub.id})}" class="btn btn-sm btn-outline-warning" title="Editar" data-bs-toggle="tooltip"><i class="bi bi-pencil"></i></a>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Más"><i class="bi bi-gear"></i></button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li th:if="${pub.estado != 'BORRADOR'}">
+                                                    <form th:action="@{/publicacion/cambiar-estado/{id}(id=${pub.id})}" method="post" class="m-0">
+                                                        <input type="hidden" name="nuevoEstado" value="BORRADOR">
+                                                        <button type="submit" class="dropdown-item text-warning">Marcar como Borrador</button>
+                                                    </form>
+                                                </li>
+                                                <li th:if="${pub.estado != 'PUBLICADO'}">
+                                                    <form th:action="@{/publicacion/cambiar-estado/{id}(id=${pub.id})}" method="post" class="m-0">
+                                                        <input type="hidden" name="nuevoEstado" value="PUBLICADO">
+                                                        <button type="submit" class="dropdown-item text-success">Publicar</button>
+                                                    </form>
+                                                </li>
+                                                <li th:if="${pub.estado != 'ARCHIVADO'}">
+                                                    <form th:action="@{/publicacion/cambiar-estado/{id}(id=${pub.id})}" method="post" class="m-0">
+                                                        <input type="hidden" name="nuevoEstado" value="ARCHIVADO">
+                                                        <button type="submit" class="dropdown-item text-secondary">Archivar</button>
+                                                    </form>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="#" th:onclick="|showPublicationInfo(${pub.id})|">Ver información</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted"><i class="bi bi-info-circle me-2"></i>Mostrando <strong id="visibleCount" th:text="${#lists.size(publicaciones)}">0</strong> publicaciones</span>
+                    <div class="d-flex align-items-center gap-3">
+                        <small class="text-muted">Última actualización: <span id="lastUpdate">Ahora</span></small>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button id="prevPage" class="btn btn-outline-secondary" type="button" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+                            <button class="btn btn-outline-secondary active" type="button">1</button>
+                            <button id="nextPage" class="btn btn-outline-secondary" type="button" aria-label="Siguiente"><i class="bi bi-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Styles -->
+    <style>
+        .rounded-4 { border-radius: 12px !important; }
+        .card { overflow: hidden; }
+        .publicacion-row { transition: background-color 180ms ease, transform 180ms ease; }
+        .publicacion-row:active { transform: translateY(1px); }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+    </style>
+
+    <!-- Scripts funcionales -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Iniciando lista de publicaciones...');
+            
+            // Elementos
+            const buscarInput = document.getElementById('buscarTitulo');
+            const clearBtn = document.getElementById('clearTitleSearch');
+            const filtroAutor = document.getElementById('filtroAutor');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            
+            // Contadores
+            const pubCountEl = document.getElementById('publicadasCount');
+            const borrCountEl = document.getElementById('borradoresCount');
+            const archCountEl = document.getElementById('archivadasCount');
+            const visibleCountEl = document.getElementById('visibleCount');
+            const lastUpdateEl = document.getElementById('lastUpdate');
+            
+            // Función para actualizar estadísticas
+            function updateStats() {
+                const rows = document.querySelectorAll('.publicacion-row');
+                let borradores = 0, publicadas = 0, archivadas = 0;
+                
+                console.log('Actualizando contadores. Filas encontradas:', rows.length);
+                
+                rows.forEach(row => {
+                    const estado = row.dataset.estado;
+                    console.log('Estado de fila:', estado);
+                    
+                    if (estado === 'BORRADOR') borradores++;
+                    else if (estado === 'PUBLICADO') publicadas++;
+                    else if (estado === 'ARCHIVADO') archivadas++;
+                });
+                
+                console.log('Contadores finales:', { borradores, publicadas, archivadas });
+                
+                if (borrCountEl) borrCountEl.textContent = borradores;
+                if (pubCountEl) pubCountEl.textContent = publicadas;
+                if (archCountEl) archCountEl.textContent = archivadas;
+            }
+            
+            // Función para filtrar publicaciones
+            function filterPublications() {
+                const titulo = buscarInput ? buscarInput.value.toLowerCase() : '';
+                const estadoSelected = document.querySelector('input[name="filtroEstado"]:checked')?.value || 'ALL';
+                const autorSelected = filtroAutor ? filtroAutor.value : '';
+                
+                const rows = document.querySelectorAll('.publicacion-row');
+                let visibleCount = 0;
+                
+                rows.forEach(row => {
+                    const rowTitulo = row.dataset.titulo ? row.dataset.titulo.toLowerCase() : '';
+                    const rowEstado = row.dataset.estado || '';
+                    const rowAutor = row.dataset.autor || '';
+                    
+                    let show = true;
+                    
+                    // Filtro por título
+                    if (titulo && !rowTitulo.includes(titulo)) {
+                        show = false;
+                    }
+                    
+                    // Filtro por estado
+                    if (estadoSelected !== 'ALL' && rowEstado !== estadoSelected) {
+                        show = false;
+                    }
+                    
+                    // Filtro por autor
+                    if (autorSelected && rowAutor !== autorSelected) {
+                        show = false;
+                    }
+                    
+                    row.style.display = show ? '' : 'none';
+                    if (show) visibleCount++;
+                });
+                
+                if (visibleCountEl) visibleCountEl.textContent = visibleCount;
+            }
+
+            // Event listeners
+            if (buscarInput) {
+                buscarInput.addEventListener('input', filterPublications);
+            }
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    if (buscarInput) buscarInput.value = '';
+                    filterPublications();
+                });
+            }
+            
+            // Filtros de estados
+            document.querySelectorAll('input[name="filtroEstado"]').forEach(radio => {
+                radio.addEventListener('change', filterPublications);
+            });
+            
+            if (filtroAutor) {
+                filtroAutor.addEventListener('change', filterPublications);
+            }
+
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    location.reload();
+                });
+            }
+
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function() {
+                    alert('Función de exportar en desarrollo');
+                });
+            }
+
+            // Función para mostrar información de publicación
+            window.showPublicationInfo = function(id) {
+                const row = document.querySelector('tr.publicacion-row[data-id="' + id + '"]');
+                if (row) {
+                    const title = row.dataset.titulo || '—';
+                    const estado = row.dataset.estado || '—';
+                    const autor = row.dataset.autor || '—';
+                    
+                    alert('Información de Publicación:\n\n' +
+                          'ID: ' + id + '\n' +
+                          'Título: ' + title + '\n' +
+                          'Autor ID: ' + autor + '\n' +
+                          'Estado: ' + estado);
+                }
+            };
+
+            // Inicializar
+            console.log('Inicializando funciones...');
+            updateStats();
+            filterPublications();
+            
+            if (lastUpdateEl) {
+                lastUpdateEl.textContent = new Date().toLocaleString();
+            }
+            
+            console.log('Lista de publicaciones cargada');
+        });
+    </script>
+
+</main>
+
+</html>

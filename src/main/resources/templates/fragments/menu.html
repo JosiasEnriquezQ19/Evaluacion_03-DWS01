@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu Fragment</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Fragmento del menú de navegación -->
+<nav th:fragment="menu" class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <!-- Brand/Logo -->
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="bi bi-journal-text"></i>
+            Blog Interno
+        </a>
+        
+        <!-- Toggle button for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Navigation items -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                
+                <!-- Menú Autores -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" 
+                       aria-expanded="false">
+                        <i class="bi bi-people"></i>
+                        Autores
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/autor}">
+                            <i class="bi bi-list"></i> Listar Autores</a>
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/autor/nuevo}">
+                            <i class="bi bi-person-plus"></i> Nuevo Autor</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" th:href="@{/autor}">
+                            <i class="bi bi-person-check"></i> Autores Activos</a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Menú Publicaciones -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" 
+                       aria-expanded="false">
+                        <i class="bi bi-file-earmark-text"></i>
+                        Publicaciones
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/publicacion}">
+                            <i class="bi bi-list"></i> Listar Publicaciones</a>
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/publicacion/nuevo}">
+                            <i class="bi bi-file-plus"></i> Nueva Publicación</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" th:href="@{/publicacion/buscar}">
+                            <i class="bi bi-search"></i> Buscar Publicaciones</a>
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/publicacion/estado/PUBLICADA}">
+                            <i class="bi bi-check-circle"></i> Publicaciones Publicadas</a>
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/publicacion/estado/BORRADOR}">
+                            <i class="bi bi-pencil"></i> Borradores</a>
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/publicacion/estado/ARCHIVADA}">
+                            <i class="bi bi-archive"></i> Archivadas</a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Enlaces directos -->
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="bi bi-house"></i>
+                        Inicio
+                    </a>
+                </li>
+                
+            </ul>
+            
+            <!-- Search form (opcional) -->
+            <form class="d-flex me-3" th:action="@{/publicacion/buscar}" method="get">
+                <input class="form-control me-2" type="search" name="titulo" placeholder="Buscar publicaciones..." 
+                       aria-label="Search" style="width: 200px;">
+                <button class="btn btn-outline-light" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+            
+            <!-- User info (opcional) -->
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" 
+                       aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        Usuario
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">
+                            <i class="bi bi-gear"></i> Configuración</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Scripts de Bootstrap (necesarios para dropdowns) -->
+<script th:fragment="bootstrap-js" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
