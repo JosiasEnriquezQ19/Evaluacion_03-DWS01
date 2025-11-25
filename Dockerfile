@@ -1,5 +1,5 @@
 # Dockerfile para EVA03 - Spring Boot App
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk-alpine
 
 # Información del mantenedor
 LABEL maintainer="eva03-app"
