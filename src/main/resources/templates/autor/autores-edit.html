@@ -43,6 +43,9 @@
                 <div class="card-body">
                     <form th:action="@{/autor/update/{id}(id=${autor.id})}" th:object="${autor}" method="post" id="editarAutorForm">
                         
+                        <!-- Campo ID oculto (NECESARIO) -->
+                        <input type="hidden" th:field="*{id}">
+                        
                         <div class="row g-4">
                             <!-- Campo Nombre -->
                             <div class="col-12">
